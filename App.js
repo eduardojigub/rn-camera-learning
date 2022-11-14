@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Camera } from 'expo-camera';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 
 export default function App() {
+  const camRef = useRef(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [hasPermission, setHasPermission] = useState(null);
+  const [capturedPhoto, setCapturedPhoto] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -26,6 +28,13 @@ export default function App() {
 
   if (hasPermission === false) {
     return <Text>Access Denied</Text>;
+  }
+
+  async function takePhoto() {
+    if (camRef) {
+      const data = await camRef.current.takePictureAsync();
+      setCapturedPhoto(data.uri);
+    }
   }
 
   return (
@@ -43,6 +52,9 @@ export default function App() {
             }}
           >
             <FontAwesome name="exchange" size={23} color="red"></FontAwesome>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buttonCamera} onPress={takePhoto}>
+            <FontAwesome name="camera" size={23} color="#fff"></FontAwesome>
           </TouchableOpacity>
         </View>
       </Camera>
@@ -71,6 +83,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    margin: 20,
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+  },
+  buttonCamera: {
+    position: 'absolute',
+    bottom: 50,
+    right: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
     margin: 20,
     height: 50,
     width: 50,
